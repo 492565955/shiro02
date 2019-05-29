@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <!--自定义的Realm-->
+    <bean id="shiroRealm" class="cn.juechuang.shiro.UserRealm" />
+    <!--缓存管理器-->
+    <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager" />
+
+    <!--安全管理器-->
+    <!--默认配置class是  org.apache.shiro.mgt.DefaultSecurityManager-->
+    <!--在web环境中shiro的安全管理器要进行更换 更改如下-->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="shiroRealm"/>
+        <property name="cacheManager" ref="cacheManager"/>
+    </bean>
+
+    <!-- shiro 的Web过滤器 -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <!--如果没有认证将要跳转的登陆地址 -->
+        <!--value可以自定义 认证没有通过直接访问/login-->
+        <property name="loginUrl"   value="/login"/>
+        <!-- 配置安全规则 -->
+        <property name="filterChainDefinitions">
+            <value>
+                <!-- 登录页面不拦截 -->
+                /login anon
+                <!--静态资源可以直接访问-->
+                /css/** anon
+                /fonts/** anon
+                /js/** anon
+                /plugin/** anon
+                <!-- user表示身份认证通过或通过记住我认证通过的可以访问 -->
+                /** user
+            </value>
+        </property>
+    </bean>
+
+
+</beans>

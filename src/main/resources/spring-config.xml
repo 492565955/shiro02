@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context" xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/cache http://www.springframework.org/schema/cache/spring-cache.xsd http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+        <!--扫描-->
+       <context:component-scan base-package="cn.juechuang"/>
+         <!--数据给sping管理-->
+       <context:property-placeholder location="classpath:jdbc.properties"/>
+
+        <!--配置数据-->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="url" value="${jdbc.url}"/>
+        <property name="username" value="${jdbc.username}" />
+        <property name="password" value="${jdbc.password}" />
+    </bean>
+
+        <!--自动注入SqlSessionFactoryBean 交给sping管理-->
+        <!--创建工厂-->
+        <bean id="SqlSessionFactoryBean" class="org.mybatis.spring.SqlSessionFactoryBean">
+            <!--数据源 和 mappeer文件配置-->
+            <property name="dataSource" ref="dataSource"></property>
+            <property name="mapperLocations" value="classpath:mapper/*Mapper.xml"></property>
+        </bean>
+      <!--采用注解-->
+    <bean id="SqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate" scope="prototype">
+        <constructor-arg index="0" ref="SqlSessionFactoryBean"/>
+     </bean>
+
+    <!--让spring生成mapper接口代理实现类-->
+     <!--<bean id="mapperScannerConfigurer" class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+         <!--&lt;!&ndash;传入工厂&ndash;&gt;-->
+         <!--<property name="sqlSessionFactoryBeanName"  value="SqlSessionFactoryBean"/>-->
+         <!--&lt;!&ndash;扫描包哪些包下的接口&ndash;&gt;-->
+         <!--<property name="basePackage" value="cn.juechuang.mapper"/>-->
+     <!--</bean>-->
+    <!--让spring生成mapper接口代理实现类-->
+    <bean id="mapperScannerConfigurer" class="tk.mybatis.spring.mapper.MapperScannerConfigurer">
+        <!--传入工厂-->
+        <property name="sqlSessionFactoryBeanName" value="SqlSessionFactoryBean"/>
+        <!--扫描包哪些包下的接口-->
+        <property name="basePackage" value="cn.juechuang.mapper"/>
+    </bean>
+
+    <!--事务的配置-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <!--需要数据源-->
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+
+    <!-- aop注解生效 -->
+    <aop:aspectj-autoproxy/>
+    <!--spring中的事务驱动-->
+    <tx:annotation-driven transaction-manager="txManager"/>
+
+    <!--导入shiro-config配置-->
+    <import resource="shiro-config.xml"/>
+
+
+</beans>

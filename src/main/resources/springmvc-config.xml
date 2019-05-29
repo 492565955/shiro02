@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc" xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+
+    <!--注解扫描-->
+    <context:component-scan base-package="cn.juechuang.controller" />
+
+    <!--注解驱动-->
+    <mvc:annotation-driven/>
+
+    <!-- 配置视图解析器 -->
+    <!-- InternalResourceViewResolver：支持JSP视图解析 -->
+    <!-- viewClass：JstlView表示JSP模板页面需要使用JSTL标签库，所以classpath中必须包含jstl的相关jar包； -->
+    <!-- prefix 和suffix：查找视图页面的前缀和后缀，最终视图的址为： -->
+    <!-- 前缀+逻辑视图名+后缀，逻辑视图名需要在controller中返回ModelAndView指定，比如逻辑视图名为hello，-->
+    <!-- 则最终返回的jsp视图地址 "WEB-INF/view/hello.jsp" -->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+        <property name="prefix" value="/WEB-INF/JSP/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <!--让springmvc释放我们的静态资源-->
+    <!--自动映射servlet默认的资源-->
+    <mvc:default-servlet-handler/>
+    <!--上传文件的配置-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <!--允许上传的文件最大大小  单位是byte-->
+        <property name="maxUploadSize" value="60000000"/>
+    </bean>
+
+    <!--<import resource="shiro-config.xml"/>-->
+
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <aop:config  proxy-target-class="true"/>
+
+</beans>
